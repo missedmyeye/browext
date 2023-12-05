@@ -1,3 +1,4 @@
+import WEBSITE_URL from ".env"
 chrome.browserAction.onClicked.addListener(function(tab) {
   chrome.windows.getAll({ populate: true }, function(windows) {
     var isPopupOpen = false;
@@ -24,7 +25,7 @@ chrome.browserAction.onClicked.addListener(function(tab) {
       isPopupOpen = true;
     } else {
       // Replace chatUrl with desired URL instead of ChatGPT
-      var chatUrl = 'https://chat.openai.com/?model=text-davinci-002-render-sha';
+      var chatUrl = WEBSITE_URL;
       chrome.windows.create({ url: chatUrl, type: 'popup', width: 400, height: 400, left: 900, top: 50 }, function(popupWindow) {
         chrome.windows.update(popupWindow.id, { focused: true,});
       });
