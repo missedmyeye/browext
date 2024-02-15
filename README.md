@@ -7,7 +7,12 @@ git clone https://github.com/missedmyeye/browext.git
 ```
 Edit the WEBSITE_URL variable in the .env file to your desired site.<br>
 If you wish to have ChatGPT in your extension then leave it as it is.<br>
-Compress the folder into a ZIP file.<br>
 Open Google Chrome menu >>> Extensions >>> Manage extensions<br>
-Load unpacked.<br>
-Activate extension
+OR enter [chrome://extensions](chrome://extensions) into your search bar.<br>
+Select `Load unpacked`<br>
+<img src='./img/loadunpacked.png'><br>
+Navigate to your folder and select it.<br>
+Activate the extension<br>
+<img src='./img/activate.png'><br>
+Click on the icon to activate the extension and open the pop-up window<br>
+<img src='./img/usage.png'><br>
