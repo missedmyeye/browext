@@ -11,8 +11,9 @@ Open Google Chrome menu >>> Extensions >>> Manage extensions<br>
 OR enter [chrome://extensions](chrome://extensions) into your search bar.<br>
 Select `Load unpacked`<br>
 <img src='./img/loadunpacked.png'><br>
-Navigate to your folder and select it.<br>
+Navigate to your folder and select the root folder.<br>
 Activate the extension<br>
 <img src='./img/activate.png'><br>
-Click on the icon to activate the extension and open the pop-up window<br>
+Click on the icon to activate the extension and open the pop-up window. Enjoy!<br>
 <img src='./img/usage.png'><br>
+If you keep the window open and end up hiding it behind your browser because you aren't using it, simply click on `Open Chat` again to bring the chat window back to front.
