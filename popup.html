@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <title>Chat Extension</title>
     <style>
       body {
-        width: 280px;
-        height: 100px;
-        padding: 20px;
+        width: 100px;
+        height: 40px;
+        padding: 10px;
       }
       button {
         padding: 10px;
@@ -13,9 +14,8 @@
     </style>
   </head>
   <body>
-    <h1>ChatGPT Extension</h1>
     <button id="openChatButton">Open Chat</button>
-    <script src="popup.js"></script>
-    <p id="status-message"></p>
+    <script src="popup.js" type="module"></script>
+    <div id="status-message"></div>
   </body>
 </html>

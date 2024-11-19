@@ -1,51 +1,82 @@
-let envVariables; // Declare envVariables outside the function
+// Initialize environment variables storage
+let envVariables = {};
+
+// Listen for installation
+self.addEventListener('install', (event) => {
+  event.waitUntil(loadEnv());
+});
+
+// Activate event listener
+self.addEventListener('activate', (event) => {
+  console.log('Service Worker activated');
+});
 
 async function loadEnv() {
-  const envUrl = chrome.runtime.getURL('.env');
-  const response = await fetch(envUrl);
-  const envText = await response.text();
-  
-  envVariables = {};
-  envText.split('\n').forEach(line => {
-    const [key, value] = line.split('= ');
-    envVariables[key.trim()] = value.trim();
-  });
-
-  // Now you can use envVariables.MY_VARIABLE
-  console.log(envVariables.WEBSITE_URL);
-}
-
-loadEnv();
-chrome.browserAction.onClicked.addListener(function(tab) {
-  chrome.windows.getAll({ populate: true }, function(windows) {
-    var isPopupOpen = false;
-
-    var extensionWindow = windows.find(function(window) {
-      if (window.type === 'popup' && window.tabs && window.tabs.length > 0) {
-        tabUrl = chrome.tabs.query({
-          active: true,
-          currentWindow: true
-        }, function(tabs) {
-          var tabUrl = tabs[0].url;
-          return tabUrl
-        });
-        // var tabUrl = window.tabs[0].url;
-        console.log(tabUrl); // Print tabUrl to the console
-        return true; 
-        // .includes('chat.openai.com');
+  try {
+    const envUrl = chrome.runtime.getURL('.env');
+    const response = await fetch(envUrl);
+    const envText = await response.text();
+    
+    const envVars = {};
+    envText.split('\n').forEach(line => {
+      if (line.trim() && !line.startsWith('#')) {
+        const [key, value] = line.split('=');
+        if (key && value) {
+          envVars[key.trim()] = value.trim();
+        }
       }
-      return false
     });
 
-    if (extensionWindow) {
-      chrome.windows.update(extensionWindow.id, { focused: true });
-      isPopupOpen = true;
+    // Store in chrome.storage
+    await chrome.storage.local.set({ envVariables: envVars });
+    envVariables = envVars; // Keep a local copy
+    console.log('Environment variables loaded successfully');
+  } catch (error) {
+    console.error('Error loading environment variables:', error);
+    throw error; // Propagate error for install event
+  }
+}
+
+// Handle click events
+chrome.action.onClicked.addListener(async (tab) => {
+  try {
+    const windows = await chrome.windows.getAll({ populate: true });
+    let existingPopup = windows.find(window => 
+      window.type === 'popup' && 
+      window.tabs?.[0]?.url?.includes(envVariables.WEBSITE_URL)
+    );
+
+    if (existingPopup) {
+      await chrome.windows.update(existingPopup.id, { focused: true });
     } else {
-      // Replace chatUrl with desired URL instead of ChatGPT
-      const chatUrl = envVariables.WEBSITE_URL;
-      chrome.windows.create({ url: chatUrl, type: 'popup', width: 400, height: 400, left: 900, top: 50 }, function(popupWindow) {
-        chrome.windows.update(popupWindow.id, { focused: true,});
+      // Get fresh env variables from storage
+      const storage = await chrome.storage.local.get('envVariables');
+      const chatUrl = storage.envVariables?.WEBSITE_URL || envVariables.WEBSITE_URL;
+      
+      if (!chatUrl) {
+        throw new Error('Website URL not found in environment variables');
+      }
+
+      await chrome.windows.create({
+        url: chatUrl,
+        type: 'popup',
+        width: 400,
+        height: 400,
+        left: 900,
+        top: 50
       });
-    };
-  });
+    }
+  } catch (error) {
+    console.error('Error handling click event:', error);
+  }
+});
+
+// Optional: Listen for messages from popup or content scripts
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'GET_ENV') {
+    chrome.storage.local.get('envVariables', (result) => {
+      sendResponse(result.envVariables || {});
+    });
+    return true; // Required for async response
+  }
 });
